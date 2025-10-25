@@ -1,31 +1,42 @@
-using UnityEngine;
+using ColorSorter.Abstractions;
 
 namespace ColorSorter.GameSystem
 {
-    public sealed class BlockSpawner
+    public sealed class ColorSpawner
     {
         public float BlueWeight { get; }
         public float RedWeight { get; }
 
-        public BlockSpawner(float blueWeight, float redWeight)
+        private readonly IRandom rng;
+
+
+        // 난수 생성기는 외부에서 주입
+        public ColorSpawner(float blueWeight, float redWeight, IRandom rng)
         {
+            this.rng = rng ?? throw new System.ArgumentNullException(nameof(rng));
+
+            if (blueWeight < 0f || float.IsNaN(blueWeight) || float.IsInfinity(blueWeight))
+                throw new System.ArgumentOutOfRangeException(nameof(blueWeight));
+            if (redWeight < 0f || float.IsNaN(redWeight) || float.IsInfinity(redWeight))
+                throw new System.ArgumentOutOfRangeException(nameof(redWeight));
+
+            var sum = blueWeight + redWeight;
+            if (sum <= 0f || float.IsNaN(sum) || float.IsInfinity(sum))
+                throw new System.ArgumentOutOfRangeException(nameof(sum));
+
             BlueWeight = blueWeight;
             RedWeight = redWeight;
+
         }
 
+        // 2가중치 샘플링 방식
         public ColorType SpawnBlock()
         {
             float totalWeight = BlueWeight + RedWeight;
-            float randomValue = Random.Range(0f, totalWeight);
+            float randomValue = rng.Value * totalWeight;
 
-            if (randomValue < BlueWeight)
-            {
-                return ColorType.Blue;
-            }
-            else
-            {
-                return ColorType.Red;
-            }
+            return (randomValue < BlueWeight) ? ColorType.Blue : ColorType.Red;
+
         }
     }
 }

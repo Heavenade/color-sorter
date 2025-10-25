@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace ColorSorter.GameSystem
@@ -8,7 +7,7 @@ namespace ColorSorter.GameSystem
     {
         private readonly Queue<ColorType> queue = new Queue<ColorType>();
 
-        public int visibleCount { get; private set; }
+        public int VisibleCount { get; }
         public int Count => queue.Count;
 
         public QueueModel(int visibleCount)
@@ -16,10 +15,9 @@ namespace ColorSorter.GameSystem
             if (visibleCount < 0)
                 throw new ArgumentOutOfRangeException(
                     nameof(visibleCount),
-                    "visibleCount must be non-negative."
-                );
+                    "visibleCount는 0 이상이어야.");
 
-            this.visibleCount = visibleCount;
+            this.VisibleCount = visibleCount;
         }
 
         public void Init(List<ColorType> initialBlocks)
@@ -71,7 +69,7 @@ namespace ColorSorter.GameSystem
         public List<ColorType> GetVisibles()
         {
             var all = queue.ToArray(); // 큐 전체를 배열로
-            int n = Math.Min(visibleCount, all.Length); // 앞 N개만 사용
+            int n = Math.Min(VisibleCount, all.Length); // 앞 N개만 사용
             var visibles = new ColorType[n];
             Array.Copy(all, 0, visibles, 0, n);
             return new List<ColorType>(visibles);
