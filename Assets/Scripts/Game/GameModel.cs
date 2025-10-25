@@ -4,7 +4,7 @@ namespace ColorSorter.GameSystem
     {
         public GameState State { get; private set; }
         public float remainingTimeSec { get; private set; }
-        public int score { get; private set; }
+        public int Score { get; private set; }
         public int missCount { get; private set; }
         public int maxMissAllowed { get; private set; }
 
@@ -21,12 +21,12 @@ namespace ColorSorter.GameSystem
         public void StartGame()
         {
             State = GameState.Playing;
-            score = 0;
+            Score = 0;
             missCount = 0;
             remainingTimeSec = durationSec; // 게임 시작 시 시간 초기화
         }
 
-        public void TimeTick(float deltaSec)
+        public void UpdateTime(float deltaSec)
         {
             if (State != GameState.Playing || deltaSec <= 0f)
                 return;
@@ -44,7 +44,7 @@ namespace ColorSorter.GameSystem
             if (State != GameState.Playing || scorePerHit <= 0)
                 return;
 
-            score += scorePerHit;
+            Score += scorePerHit;
         }
 
         public void AddMiss()
@@ -67,6 +67,10 @@ namespace ColorSorter.GameSystem
         public bool IsGameOver()
         {
             return State == GameState.GameOver;
+        }
+        public bool IsPlaying()
+        {
+            return State == GameState.Playing;
         }
     }
 }

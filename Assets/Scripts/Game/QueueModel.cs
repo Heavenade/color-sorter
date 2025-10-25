@@ -20,12 +20,12 @@ namespace ColorSorter.GameSystem
             this.VisibleCount = visibleCount;
         }
 
-        public void Init(List<ColorType> initialBlocks)
+        public void Init(List<ColorType> initialColors)
         {
             queue.Clear();
-            foreach (var block in initialBlocks)
+            foreach (var color in initialColors)
             {
-                EnqueueBack(block);
+                EnqueueBack(color);
             }
         }
 

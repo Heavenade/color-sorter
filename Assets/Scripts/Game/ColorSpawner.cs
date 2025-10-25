@@ -30,7 +30,7 @@ namespace ColorSorter.GameSystem
         }
 
         // 2가중치 샘플링 방식
-        public ColorType SpawnBlock()
+        public ColorType SpawnColor()
         {
             float totalWeight = BlueWeight + RedWeight;
             float randomValue = rng.Value * totalWeight;

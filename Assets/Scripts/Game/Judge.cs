@@ -1,8 +1,8 @@
 namespace ColorSorter.GameSystem
 {
-    public sealed class Judge
+    public static class Judge
     {
-        public JudgeType JudgeHitOrMiss(ColorType inputColor, ColorType targetColor)
+        public static JudgeType JudgeHitOrMiss(ColorType inputColor, ColorType? targetColor)
         {
             if (targetColor == null)
             {
