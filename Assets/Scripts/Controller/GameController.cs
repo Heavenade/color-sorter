@@ -132,7 +132,6 @@ namespace ColorSorter.Controller
             }
             queueModel.Init(initialColors);
 
-            // TODO: GameStart UI 활성화
             RenderUI();
         }
 
@@ -172,7 +171,6 @@ namespace ColorSorter.Controller
                 bestSavedThisRound = true;
             }
 
-            // TODO: GameOver UI 활성화
             if (!gameOverShown)
             {
                 gameOverShown = true;
@@ -212,9 +210,9 @@ namespace ColorSorter.Controller
 
 
         /// <summary>
-        /// Presenter Control
+        /// Create UI State
         /// </summary>
-        private GameUIState BuildSnapshot()
+        private GameUIState BuildUIState()
         {
             return new GameUIState
             {
@@ -229,7 +227,7 @@ namespace ColorSorter.Controller
         }
         private void RenderUI()
         {
-            var snapShot = BuildSnapshot();
+            var snapShot = BuildUIState();
             if (boardView)
                 boardView.Render(snapShot.VisibleQueue, snapShot.HighlightFront);
             if (hudView)

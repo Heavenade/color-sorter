@@ -6,13 +6,13 @@ namespace ColorSorter.GameSystem
         public float RemainingTimeSec { get; private set; }
         public int Score { get; private set; }
         public int MissCount { get; private set; }
-        public int maxMissAllowed { get; private set; }
+        public int MaxMissAllowed { get; private set; }
 
         private readonly float durationSec;
 
         public GameModel(int maxMissAllowed, float durationSec)
         {
-            this.maxMissAllowed = maxMissAllowed;
+            this.MaxMissAllowed = maxMissAllowed;
             RemainingTimeSec = durationSec;
 
             this.durationSec = durationSec;
@@ -53,7 +53,7 @@ namespace ColorSorter.GameSystem
                 return;
 
             MissCount++;
-            if (MissCount >= maxMissAllowed)
+            if (MissCount >= MaxMissAllowed)
             {
                 EndGame();
             }

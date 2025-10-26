@@ -27,11 +27,5 @@ namespace ColorSorter.View
                 timerText.text = snapshot.TimeRemainingSec.ToString("0,0");
 
         }
-
-
-        void ShowGameOver()
-        {
-            // TODO: GameOverUI
-        }
     }
 }
