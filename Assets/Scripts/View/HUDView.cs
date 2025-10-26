@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using ColorSorter.Presentation;
+using ColorSorter.Controller.ViewData;
 
 namespace ColorSorter.View
 {

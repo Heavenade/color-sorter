@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ColorSorter.GameSystem;
 
-namespace ColorSorter.Presentation
+namespace ColorSorter.Controller.ViewData
 {
     public sealed class GameUIState
     {

@@ -5,7 +5,7 @@ using ColorSorter.GameSystem;
 using ColorSorter.Abstractions;
 using ColorSorter.Services;
 using ColorSorter.View;
-using ColorSorter.Presentation;
+using ColorSorter.Controller.ViewData;
 
 namespace ColorSorter.Controller
 {
