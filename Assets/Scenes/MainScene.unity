@@ -440,7 +440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laneRoot: {fileID: 1257035015}
-  notePrefab: {fileID: 6805497776689996793, guid: 18647f4a4388949c0a359950e6c6dd92, type: 3}
+  itemPrefab: {fileID: 6805497776689996793, guid: 18647f4a4388949c0a359950e6c6dd92, type: 3}
 --- !u!1 &365652072
 GameObject:
   m_ObjectHideFlags: 0
@@ -1960,7 +1960,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 0
+  m_Spacing: 5
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0

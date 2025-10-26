@@ -12,19 +12,15 @@ namespace ColorSorter.View
         [SerializeField] TMP_Text timerText;
 
 
-        public void Render(GameUIState snapshot)
+        public void Render(GameUIState state)
         {
-            if (snapshot == null)
+            if (state == null)
                 return;
 
-            if (scoreText != null)
-                scoreText.text = $"Score: {snapshot.Score}";
-            if (bestText != null)
-                bestText.text = $"Best: {snapshot.BestScore}";
-            if (missText != null)
-                missText.text = $"Miss: {snapshot.MissCount}";
-            if (timerText != null)
-                timerText.text = snapshot.TimeRemainingSec.ToString("0,0");
+            scoreText.text = $"Score: {state.Score}";
+            bestText.text = $"Best: {state.BestScore}";
+            missText.text = $"Miss: {state.MissCount}";
+            timerText.text = state.TimeRemainingSec.ToString("0,0");
 
         }
     }

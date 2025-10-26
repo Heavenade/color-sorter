@@ -1,6 +1,6 @@
 using ColorSorter.Abstractions;
 
-namespace ColorSorter.GameSystem
+namespace ColorSorter.Game
 {
     public sealed class ColorSpawner
     {

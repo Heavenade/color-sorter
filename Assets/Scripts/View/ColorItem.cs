@@ -1,10 +1,10 @@
-using ColorSorter.GameSystem;
+using ColorSorter.Game;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ColorSorter.View
 {
-    public class NoteView : MonoBehaviour
+    public class ColorItem : MonoBehaviour
     {
         [SerializeField] private Image icon;
 

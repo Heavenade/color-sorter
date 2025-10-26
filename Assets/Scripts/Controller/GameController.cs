@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using ColorSorter.GameSystem;
+using ColorSorter.Game;
 using ColorSorter.Abstractions;
 using ColorSorter.Services;
 using ColorSorter.View;

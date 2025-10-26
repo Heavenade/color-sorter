@@ -1,4 +1,4 @@
-namespace ColorSorter.GameSystem
+namespace ColorSorter.Game
 {
     public static class Judge
     {

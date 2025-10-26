@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using ColorSorter.GameSystem;
+using ColorSorter.Game;
 using ColorSorter.Controller;
 
 namespace ColorSorter.View

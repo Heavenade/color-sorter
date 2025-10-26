@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ColorSorter.GameSystem
+namespace ColorSorter.Game
 {
     public class QueueModel
     {

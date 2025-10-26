@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ColorSorter.GameSystem;
+using ColorSorter.Game;
 using UnityEngine;
 
 namespace ColorSorter.View
@@ -7,32 +7,32 @@ namespace ColorSorter.View
     public class BoardView : MonoBehaviour
     {
         [SerializeField] private Transform laneRoot;
-        [SerializeField] private NoteView notePrefab;
+        [SerializeField] private ColorItem itemPrefab;
 
-        private List<NoteView> pool = new List<NoteView>();
+        private List<ColorItem> pool = new List<ColorItem>();
 
         public void Build(int visibleCount)
         {
             // Clear
-            foreach (var note in pool)
+            foreach (var item in pool)
             {
-                if (note)
-                    Destroy(note.gameObject);
+                if (item)
+                    Destroy(item.gameObject);
             }
             pool.Clear();
 
             // Create
             for (int i = 0; i < visibleCount; i++)
             {
-                var note = Instantiate(notePrefab, laneRoot);
-                note.gameObject.SetActive(false);
-                pool.Add(note);
+                var item = Instantiate(itemPrefab, laneRoot);
+                item.gameObject.SetActive(false);
+                pool.Add(item);
             }
         }
 
         public void Render(List<ColorType> visibleQueue, bool highlightFront)
         {
-           if (pool.Count == 0 || visibleQueue == null)
+            if (pool.Count == 0 || visibleQueue == null)
                 return;
 
             for (int i = 0; i < pool.Count; i++)
@@ -47,7 +47,7 @@ namespace ColorSorter.View
                 {
                     pool[i].SetActive(false);
                 }
-            }   
+            }
         }
     }
 }

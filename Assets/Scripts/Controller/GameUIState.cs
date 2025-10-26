@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ColorSorter.GameSystem;
+using ColorSorter.Game;
 
 namespace ColorSorter.Controller.ViewData
 {
