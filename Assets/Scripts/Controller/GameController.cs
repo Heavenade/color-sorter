@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using ColorSorter.GameSystem;
 using ColorSorter.Abstractions;
 using ColorSorter.Services;
+using ColorSorter.View;
+using ColorSorter.Presentation;
 
 namespace ColorSorter.Controller
 {
@@ -12,6 +14,13 @@ namespace ColorSorter.Controller
         // Data
         [SerializeField] private GameConfig gameConfig;
         [SerializeField] private SpawnTable spawnTable;
+
+        // Views
+        [SerializeField] private BoardView boardView;
+        [SerializeField] private HUDView hudView;
+        [SerializeField] private GameOverView gameOverView;
+
+        [SerializeField] private GameInputHandler inputHandler;
 
         // Services
         private IRandom rng;
@@ -25,6 +34,7 @@ namespace ColorSorter.Controller
         // variables
         private int bestScore = 0;
         private bool bestSavedThisRound = false;
+        private bool gameOverShown = false;
 
         void Awake()
         {
@@ -56,6 +66,12 @@ namespace ColorSorter.Controller
 
         void Start()
         {
+            // 보드를 먼저 생성
+            if (boardView)
+            {
+                boardView.Build(gameConfig.visibleCount);
+            }
+
             StartNewGame();
         }
 
@@ -66,9 +82,14 @@ namespace ColorSorter.Controller
 
             gameModel.UpdateTime(Time.deltaTime);
 
-            CheckGameOverAndPersist();
+            CheckGameOver();
+
+            RenderUI();
         }
 
+        /// <summary>
+        /// Input Control
+        /// </summary>
         public void HandleInput(ColorType input)
         {
             if (!gameModel.IsPlaying())
@@ -90,13 +111,18 @@ namespace ColorSorter.Controller
                 gameModel.AddMiss();
             }
 
-            CheckGameOverAndPersist();
+            CheckGameOver();
+            RenderUI();
         }
 
         public void StartNewGame()
         {
             gameModel.StartGame();
             bestSavedThisRound = false;
+            gameOverShown = false;
+
+            if (gameOverView)
+                gameOverView.Hide();
 
             var initialCount = gameConfig.initialQueueSize;
             var initialColors = new List<ColorType>(initialCount);
@@ -107,12 +133,19 @@ namespace ColorSorter.Controller
             queueModel.Init(initialColors);
 
             // TODO: GameStart UI 활성화
+            RenderUI();
         }
 
         public void RestartGame()
         {
-            if (gameModel.IsGameOver())
-                StartNewGame();
+            if (gameOverView)
+                gameOverView.Hide();
+            gameOverShown = false;
+
+            if (inputHandler)
+                inputHandler.SetEnabled(true);
+
+            StartNewGame();
         }
 
         private void SaveBestScore()
@@ -128,7 +161,7 @@ namespace ColorSorter.Controller
         /// <summary>
         /// GameOver 전환 시점에 단 한 번 저장
         /// </summary>
-        private void CheckGameOverAndPersist()
+        private void CheckGameOver()
         {
             if (!gameModel.IsGameOver())
                 return;
@@ -137,7 +170,18 @@ namespace ColorSorter.Controller
             {
                 SaveBestScore();
                 bestSavedThisRound = true;
-                // TODO: GameOver UI 활성화
+            }
+
+            // TODO: GameOver UI 활성화
+            if (!gameOverShown)
+            {
+                gameOverShown = true;
+
+                if (inputHandler)
+                    inputHandler.SetEnabled(false);
+
+                if (gameOverView)
+                    gameOverView.Show(gameModel.Score, bestScore, RestartGame);
             }
         }
 
@@ -163,7 +207,33 @@ namespace ColorSorter.Controller
 
             var sum = table.blueWeight + table.redWeight;
             if (float.IsNaN(sum) || float.IsInfinity(sum) || sum <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(sum), "Sum of weights must be > 0 and finite");
+                throw new ArgumentOutOfRangeException(nameof(sum), "Weight Sum must be > 0 and finite");
+        }
+
+
+        /// <summary>
+        /// Presenter Control
+        /// </summary>
+        private GameUIState BuildSnapshot()
+        {
+            return new GameUIState
+            {
+                State = gameModel.State,
+                TimeRemainingSec = gameModel.RemainingTimeSec,
+                Score = gameModel.Score,
+                MissCount = gameModel.MissCount,
+                BestScore = bestScore,
+                VisibleQueue = queueModel.GetVisibles(),
+                HighlightFront = queueModel.Count > 0
+            };
+        }
+        private void RenderUI()
+        {
+            var snapShot = BuildSnapshot();
+            if (boardView)
+                boardView.Render(snapShot.VisibleQueue, snapShot.HighlightFront);
+            if (hudView)
+                hudView.Render(snapShot);
         }
     }
 }
