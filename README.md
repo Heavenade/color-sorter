@@ -17,3 +17,13 @@
 - MVC 구조 기반 설계로 UI와 게임 로직 분리
 - 최고 점수 자동 저장 (PlayerPrefs)
 - ScriptableObject 기반 게임 설정값 분리
+
+## Project Structure
+
+```plaintext
+/Game           # 게임 로직
+/Controller     # GameController & ViewData
+/View           # UI Views (HUD, Board, GameOver, Input)
+/Services       # HighScore & Random Utility
+/Abstractions   # IRandom, IHighScoreService 인터페이스
+/Data           # GameConfig, SpawnTable
