@@ -35,17 +35,23 @@ namespace ColorSorter.View
             if (pool.Count == 0 || visibleQueue == null)
                 return;
 
+            int count = visibleQueue.Count;
+
             for (int i = 0; i < pool.Count; i++)
             {
-                if (i < visibleQueue.Count)
+                // 위쪽부터 채우기 위해 역순 매핑
+                int poolIndex = pool.Count - 1 - i;
+                var note = pool[poolIndex];
+
+                if (i < count)
                 {
-                    pool[i].SetColor(visibleQueue[i]);
-                    pool[i].SetActive(true);
-                    pool[i].SetHighlighted(highlightFront && i == 0);
+                    note.SetColor(visibleQueue[i]);
+                    note.SetActive(true);
+                    note.SetHighlighted(highlightFront && i == 0);
                 }
                 else
                 {
-                    pool[i].SetActive(false);
+                    note.SetActive(false);
                 }
             }
         }
