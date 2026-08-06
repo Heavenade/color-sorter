@@ -15,31 +15,40 @@ namespace ColorSorter.Controller
         [SerializeField] private GameConfig gameConfig;
         [SerializeField] private SpawnTable spawnTable;
 
+
         // Views
         [SerializeField] private BoardView boardView;
         [SerializeField] private HUDView hudView;
         [SerializeField] private GameOverView gameOverView;
 
+
+        // Input
         [SerializeField] private GameInputHandler inputHandler;
+
 
         // Services
         private IRandom rng;
         private IHighScoreService highScoreService;
+
 
         // Game System
         private ColorSpawner colorSpawner;
         private GameModel gameModel;
         private QueueModel queueModel;
 
-        // variables
-        private int bestScore = 0;
-        private bool bestSavedThisRound = false;
-        private bool gameOverShown = false;
 
-        void Awake()
+        // Runtime State
+        private int bestScore;
+        private bool bestSavedThisRound;
+        private bool gameOverShown;
+        private List<ColorType> visibleQueue;
+
+
+        private void Awake()
         {
             if (gameConfig == null)
                 throw new ArgumentNullException(nameof(gameConfig));
+
             if (spawnTable == null)
                 throw new ArgumentNullException(nameof(spawnTable));
 
@@ -64,7 +73,7 @@ namespace ColorSorter.Controller
             bestScore = highScoreService.GetHighScore();
         }
 
-        void Start()
+        private void Start()
         {
             // 보드를 먼저 생성
             if (boardView)
@@ -75,21 +84,20 @@ namespace ColorSorter.Controller
             StartNewGame();
         }
 
-        void Update()
+        private void Update()
         {
             if (!gameModel.IsPlaying())
                 return;
 
             gameModel.UpdateTime(Time.deltaTime);
-
             CheckGameOver();
 
-            RenderUI();
+            RenderUI(false);
         }
 
-        /// <summary>
-        /// Input Control
-        /// </summary>
+
+        // Input Control
+
         public void HandleInput(ColorType input)
         {
             if (!gameModel.IsPlaying())
@@ -98,12 +106,17 @@ namespace ColorSorter.Controller
             var front = queueModel.PeekFront();
             var judge = Judge.JudgeHitOrMiss(input, front);
 
+            bool queueChanged = false;
+
             if (judge == JudgeType.Hit)
             {
                 if (queueModel.DequeueFront(out _))
                 {
                     queueModel.EnqueueBack(colorSpawner.SpawnColor());
                     gameModel.AddScore(gameConfig.scorePerHit);
+
+                    RefreshVisibleQueue();
+                    queueChanged = true;
                 }
             }
             else
@@ -112,106 +125,86 @@ namespace ColorSorter.Controller
             }
 
             CheckGameOver();
-            RenderUI();
+            RenderUI(queueChanged);
         }
+
+
+        // Game Control
 
         public void StartNewGame()
         {
             gameModel.StartGame();
+
             bestSavedThisRound = false;
             gameOverShown = false;
+
+            if (inputHandler)
+                inputHandler.SetEnabled(true);
 
             if (gameOverView)
                 gameOverView.Hide();
 
             var initialCount = gameConfig.initialQueueSize;
             var initialColors = new List<ColorType>(initialCount);
+
             for (int i = 0; i < initialCount; i++)
             {
                 initialColors.Add(colorSpawner.SpawnColor());
             }
+
             queueModel.Init(initialColors);
+            RefreshVisibleQueue();
 
             RenderUI();
         }
 
         public void RestartGame()
         {
-            if (gameOverView)
-                gameOverView.Hide();
-            gameOverShown = false;
-
-            if (inputHandler)
-                inputHandler.SetEnabled(true);
-
             StartNewGame();
         }
 
-        private void SaveBestScore()
-        {
-            var score = gameModel.Score;
-            if (score > bestScore)
-            {
-                bestScore = score;
-                highScoreService.SetHighScore(bestScore);
-            }
-        }
-
-        /// <summary>
-        /// GameOver 전환 시점에 단 한 번 저장
-        /// </summary>
         private void CheckGameOver()
         {
             if (!gameModel.IsGameOver())
                 return;
 
+            // 게임오버 전환 시 한 번만 최고 점수를 저장한다.
             if (!bestSavedThisRound)
             {
                 SaveBestScore();
                 bestSavedThisRound = true;
             }
 
-            if (!gameOverShown)
-            {
-                gameOverShown = true;
+            // 게임오버 UI 역시 라운드마다 한 번만 표시한다.
+            if (gameOverShown)
+                return;
 
-                if (inputHandler)
-                    inputHandler.SetEnabled(false);
+            gameOverShown = true;
 
-                if (gameOverView)
-                    gameOverView.Show(gameModel.Score, bestScore, RestartGame);
-            }
+            if (inputHandler)
+                inputHandler.SetEnabled(false);
+
+            if (gameOverView)
+                gameOverView.Show(
+                    gameModel.Score,
+                    bestScore,
+                    RestartGame);
         }
 
-        /// <summary>
-        /// 설정값 검사
-        /// </summary>
-        private static void ValidateConfigOrThrow(GameConfig cfg, SpawnTable table)
+        private void SaveBestScore()
         {
-            if (cfg.durationSec <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(cfg.durationSec), "durationSec must be > 0");
-            if (cfg.maxMissAllowed <= 0)
-                throw new ArgumentOutOfRangeException(nameof(cfg.maxMissAllowed), "maxMissAllowed must be > 0");
-            if (cfg.visibleCount < 0)
-                throw new ArgumentOutOfRangeException(nameof(cfg.visibleCount), "visibleCount must be >= 0");
-            if (cfg.initialQueueSize < 0)
-                throw new ArgumentOutOfRangeException(nameof(cfg.initialQueueSize), "initialQueueSize must be >= 0");
+            var score = gameModel.Score;
 
-            // 가중치 검사
-            if (float.IsNaN(table.blueWeight) || float.IsInfinity(table.blueWeight) || table.blueWeight < 0f)
-                throw new ArgumentOutOfRangeException(nameof(table.blueWeight), "blueWeight must be ≥ 0 and finite");
-            if (float.IsNaN(table.redWeight) || float.IsInfinity(table.redWeight) || table.redWeight < 0f)
-                throw new ArgumentOutOfRangeException(nameof(table.redWeight), "redWeight must be ≥ 0 and finite");
+            if (score <= bestScore)
+                return;
 
-            var sum = table.blueWeight + table.redWeight;
-            if (float.IsNaN(sum) || float.IsInfinity(sum) || sum <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(sum), "Weight Sum must be > 0 and finite");
+            bestScore = score;
+            highScoreService.SetHighScore(bestScore);
         }
 
 
-        /// <summary>
-        /// Create UI State
-        /// </summary>
+        // UI
+
         private GameUIState BuildUIState()
         {
             return new GameUIState
@@ -221,17 +214,97 @@ namespace ColorSorter.Controller
                 Score = gameModel.Score,
                 MissCount = gameModel.MissCount,
                 BestScore = bestScore,
-                VisibleQueue = queueModel.GetVisibles(),
+                VisibleQueue = visibleQueue,
                 HighlightFront = queueModel.Count > 0
             };
         }
-        private void RenderUI()
+
+        private void RenderUI(bool renderBoard = true)
         {
-            var snapShot = BuildUIState();
-            if (boardView)
-                boardView.Render(snapShot.VisibleQueue, snapShot.HighlightFront);
+            var snapshot = BuildUIState();
+
+            if (renderBoard && boardView)
+            {
+                boardView.Render(
+                    snapshot.VisibleQueue,
+                    snapshot.HighlightFront);
+            }
+
             if (hudView)
-                hudView.Render(snapShot);
+            {
+                hudView.Render(snapshot);
+            }
+        }
+
+        private void RefreshVisibleQueue()
+        {
+            visibleQueue = queueModel.GetVisibles();
+        }
+
+
+        // Validation
+
+        private static void ValidateConfigOrThrow(
+            GameConfig cfg,
+            SpawnTable table)
+        {
+            if (cfg.durationSec <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(cfg.durationSec),
+                    "durationSec must be greater than zero.");
+            }
+
+            if (cfg.maxMissAllowed <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(cfg.maxMissAllowed),
+                    "maxMissAllowed must be greater than zero.");
+            }
+
+            if (cfg.visibleCount < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(cfg.visibleCount),
+                    "visibleCount must be zero or greater.");
+            }
+
+            if (cfg.initialQueueSize < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(cfg.initialQueueSize),
+                    "initialQueueSize must be zero or greater.");
+            }
+
+            // 가중치 검사
+            if (float.IsNaN(table.blueWeight) ||
+                float.IsInfinity(table.blueWeight) ||
+                table.blueWeight < 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(table.blueWeight),
+                    "blueWeight must be a non-negative finite value.");
+            }
+
+            if (float.IsNaN(table.redWeight) ||
+                float.IsInfinity(table.redWeight) ||
+                table.redWeight < 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(table.redWeight),
+                    "redWeight must be a non-negative finite value.");
+            }
+
+            var sum = table.blueWeight + table.redWeight;
+
+            if (float.IsNaN(sum) ||
+                float.IsInfinity(sum) ||
+                sum <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(sum),
+                    "The total spawn weight must be a positive finite value.");
+            }
         }
     }
 }
