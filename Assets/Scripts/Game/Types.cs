@@ -8,7 +8,7 @@ namespace ColorSorter.Game
 
     public enum GameState
     {
-        IDle,
+        Idle,
         Playing,
         GameOver,
     }
