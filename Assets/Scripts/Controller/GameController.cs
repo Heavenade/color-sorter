@@ -6,6 +6,7 @@ using ColorSorter.Abstractions;
 using ColorSorter.Services;
 using ColorSorter.View;
 using ColorSorter.Controller.ViewData;
+using ColorSorter.Data;
 
 namespace ColorSorter.Controller
 {
@@ -46,6 +47,8 @@ namespace ColorSorter.Controller
 
         private void Awake()
         {
+            // 게임 설정값 누락이나 오류는 게임진행이 불가한 치명적 오류이므로
+            // 다른 View들과 달리 예외를 던져 즉시 중단시킨다
             if (gameConfig == null)
                 throw new ArgumentNullException(nameof(gameConfig));
 
@@ -98,13 +101,13 @@ namespace ColorSorter.Controller
 
         // Input Control
 
-        public void HandleInput(ColorType input)
+        public void HandleInput(ColorType inputColor)
         {
             if (!gameModel.IsPlaying())
                 return;
 
-            var front = queueModel.PeekFront();
-            var judge = Judge.JudgeHitOrMiss(input, front);
+            var frontColor = queueModel.PeekFront();
+            var judge = Judge.JudgeHitOrMiss(inputColor, frontColor);
 
             bool queueChanged = false;
 
@@ -115,7 +118,9 @@ namespace ColorSorter.Controller
                     queueModel.EnqueueBack(colorSpawner.SpawnColor());
                     gameModel.AddScore(gameConfig.scorePerHit);
 
-                    RefreshVisibleQueue();
+                    // Queue가 변경되었으므로 화면 표시용 목록을 갱신
+                    visibleQueue = queueModel.GetVisibles();
+
                     queueChanged = true;
                 }
             }
@@ -153,7 +158,9 @@ namespace ColorSorter.Controller
             }
 
             queueModel.Init(initialColors);
-            RefreshVisibleQueue();
+
+            // Queue가 변경되었으므로 화면 표시용 목록을 갱신
+            visibleQueue = queueModel.GetVisibles();
 
             RenderUI();
         }
@@ -168,14 +175,14 @@ namespace ColorSorter.Controller
             if (!gameModel.IsGameOver())
                 return;
 
-            // 게임오버 전환 시 한 번만 최고 점수를 저장한다.
+            // 게임오버 전환 시 한 번만 최고 점수를 저장
             if (!bestSavedThisRound)
             {
                 SaveBestScore();
                 bestSavedThisRound = true;
             }
 
-            // 게임오버 UI 역시 라운드마다 한 번만 표시한다.
+            // 게임오버 UI는 라운드마다 한 번만 표시
             if (gameOverShown)
                 return;
 
@@ -235,12 +242,6 @@ namespace ColorSorter.Controller
                 hudView.Render(snapshot);
             }
         }
-
-        private void RefreshVisibleQueue()
-        {
-            visibleQueue = queueModel.GetVisibles();
-        }
-
 
         // Validation
 

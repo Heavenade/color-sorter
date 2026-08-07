@@ -3,9 +3,7 @@ using ColorSorter.Abstractions;
 
 namespace ColorSorter.Services
 {
-    /// <summary>
-    /// 유니티 랜덤을 사용하기 위한 서비스
-    /// </summary>
+    // 유니티 랜덤을 사용하기 위한 난수 서비스
     public sealed class UnityRandomProvider : IRandom
     {
         public int Range(int min, int max)

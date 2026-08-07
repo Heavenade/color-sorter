@@ -9,14 +9,7 @@ namespace ColorSorter.Game
                 return JudgeType.Miss;
             }
 
-            if (inputColor == targetColor)
-            {
-                return JudgeType.Hit;
-            }
-            else
-            {
-                return JudgeType.Miss;
-            }
+            return inputColor == targetColor ? JudgeType.Hit : JudgeType.Miss;
         }
     }
 }

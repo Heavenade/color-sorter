@@ -1,3 +1,5 @@
+using System;
+
 namespace ColorSorter.Game
 {
     public sealed class GameModel
@@ -12,7 +14,23 @@ namespace ColorSorter.Game
 
         public GameModel(int maxMissAllowed, float durationSec)
         {
-            this.MaxMissAllowed = maxMissAllowed;
+            if (maxMissAllowed <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(maxMissAllowed),
+                    "maxMissAllowed must be greater than zero.");
+            }
+
+            if (durationSec <= 0f ||
+                float.IsNaN(durationSec) ||
+                float.IsInfinity(durationSec))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(durationSec),
+                    "durationSec must be a positive finite value.");
+            }
+
+            MaxMissAllowed = maxMissAllowed;
             RemainingTimeSec = durationSec;
 
             this.durationSec = durationSec;
@@ -59,11 +77,6 @@ namespace ColorSorter.Game
             }
         }
 
-        private void EndGame()
-        {
-            State = GameState.GameOver;
-        }
-
         public bool IsGameOver()
         {
             return State == GameState.GameOver;
@@ -71,6 +84,11 @@ namespace ColorSorter.Game
         public bool IsPlaying()
         {
             return State == GameState.Playing;
+        }
+
+        private void EndGame()
+        {
+            State = GameState.GameOver;
         }
     }
 }

@@ -4,8 +4,8 @@ namespace ColorSorter.Game
 {
     public sealed class ColorSpawner
     {
-        public float BlueWeight { get; }
-        public float RedWeight { get; }
+        private readonly float blueWeight;
+        private readonly float redWeight;
 
         private readonly IRandom rng;
 
@@ -24,18 +24,18 @@ namespace ColorSorter.Game
             if (sum <= 0f || float.IsNaN(sum) || float.IsInfinity(sum))
                 throw new System.ArgumentOutOfRangeException(nameof(sum));
 
-            BlueWeight = blueWeight;
-            RedWeight = redWeight;
+            this.blueWeight = blueWeight;
+            this.redWeight = redWeight;
 
         }
 
-        // 2가중치 샘플링 방식
+        // 2가중치 샘플링 방식 - 가중치에 비례하여 색상을 선택한다
         public ColorType SpawnColor()
         {
-            float totalWeight = BlueWeight + RedWeight;
+            float totalWeight = blueWeight + redWeight;
             float randomValue = rng.Value * totalWeight;
 
-            return (randomValue < BlueWeight) ? ColorType.Blue : ColorType.Red;
+            return (randomValue < blueWeight) ? ColorType.Blue : ColorType.Red;
 
         }
     }

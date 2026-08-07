@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ColorSorter.Game
 {
-    public class QueueModel
+    public sealed class QueueModel
     {
         private readonly Queue<ColorType> queue = new Queue<ColorType>();
 
@@ -13,15 +13,16 @@ namespace ColorSorter.Game
         public QueueModel(int visibleCount)
         {
             if (visibleCount < 0)
-                throw new ArgumentOutOfRangeException(
-                    nameof(visibleCount),
-                    "visibleCount는 0 이상이어야.");
+                throw new ArgumentOutOfRangeException(nameof(visibleCount), "visibleCount must be zero or greater.");
 
             this.VisibleCount = visibleCount;
         }
 
-        public void Init(List<ColorType> initialColors)
+        public void Init(IEnumerable<ColorType> initialColors)
         {
+            if (initialColors == null)
+                throw new ArgumentNullException(nameof(initialColors));
+
             queue.Clear();
             foreach (var color in initialColors)
             {
@@ -34,9 +35,7 @@ namespace ColorSorter.Game
             queue.Enqueue(color);
         }
 
-        /// <summary>
-        /// 맨 앞 아이템 제거. 성공 시 true 반환.
-        /// </summary>
+        // 맨 앞 아이템 제거. 성공 시 true 반환
         public bool DequeueFront(out ColorType color)
         {
             if (queue.Count > 0)
@@ -63,16 +62,21 @@ namespace ColorSorter.Game
             queue.Clear();
         }
 
-        /// <summary>
-        /// 앞에서부터 visibleCount 개의 아이템을 리스트로 반환.
-        /// </summary>
+        // 앞에서부터 visibleCount 개의 아이템을 리스트로 반환
         public List<ColorType> GetVisibles()
         {
-            var all = queue.ToArray(); // 큐 전체를 배열로
-            int n = Math.Min(VisibleCount, all.Length); // 앞 N개만 사용
-            var visibles = new ColorType[n];
-            Array.Copy(all, 0, visibles, 0, n);
-            return new List<ColorType>(visibles);
+            // visibleCount 개만 사용 (큐가 더 작다면 큐 카운트를 사용)
+            var visibles = new List<ColorType>(Math.Min(VisibleCount, queue.Count));
+            int count = 0;
+            foreach (var color in queue)
+            {
+                if (count >= VisibleCount)
+                    break;
+
+                visibles.Add(color);
+                count++;
+            }
+            return visibles;
         }
     }
 }
