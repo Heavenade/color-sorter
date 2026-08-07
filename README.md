@@ -27,3 +27,4 @@
 /Services       # HighScore & Random Utility
 /Abstractions   # IRandom, IHighScoreService 인터페이스
 /Data           # GameConfig, SpawnTable
+```
