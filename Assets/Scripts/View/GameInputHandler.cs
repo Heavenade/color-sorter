@@ -19,22 +19,17 @@ namespace ColorSorter.View
 
         void Awake()
         {
-            if (blueButton)
+            if (controller == null)
+                Debug.LogError($"{nameof(GameInputHandler)}: {nameof(controller)} is not assigned.", this);
+
+            if (blueButton && controller)
                 blueButton.onClick.AddListener(() => controller.HandleInput(ColorType.Blue));
 
-            if (redButton)
+            if (redButton && controller)
                 redButton.onClick.AddListener(() => controller.HandleInput(ColorType.Red));
 
-            if (restartButton)
+            if (restartButton && controller)
                 restartButton.onClick.AddListener(() => controller.RestartGame());
-        }
-
-
-        // TODO: 키보드 입력 시 작성
-        void Update()
-        {
-            if (controller == null)
-                return;
         }
 
         public void SetEnabled(bool on)

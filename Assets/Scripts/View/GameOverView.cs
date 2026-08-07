@@ -17,15 +17,16 @@ namespace ColorSorter.View
         void Awake()
         {
             if (gameOverPanel == null)
-                throw new System.ArgumentNullException(nameof(gameOverPanel));
+                Debug.LogError($"{nameof(GameOverView)}: {nameof(gameOverPanel)} is not assigned.", this);
             if (finalScoreText == null)
-                throw new System.ArgumentNullException(nameof(finalScoreText));
+                Debug.LogError($"{nameof(GameOverView)}: {nameof(finalScoreText)} is not assigned.", this);
             if (bestScoreText == null)
-                throw new System.ArgumentNullException(nameof(bestScoreText));
+                Debug.LogError($"{nameof(GameOverView)}: {nameof(bestScoreText)} is not assigned.", this);
             if (restartButton == null)
-                throw new System.ArgumentNullException(nameof(restartButton));
+                Debug.LogError($"{nameof(GameOverView)}: {nameof(restartButton)} is not assigned.", this);
 
-            gameOverPanel.SetActive(false);
+            if (gameOverPanel)
+                gameOverPanel.SetActive(false);
         }
 
         public void Show(int finalScore, int bestScore, Action onRestart)

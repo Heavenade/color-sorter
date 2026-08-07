@@ -11,6 +11,15 @@ namespace ColorSorter.View
 
         private List<ColorItem> pool = new List<ColorItem>();
 
+        void Awake()
+        {
+            if (laneRoot == null)
+                Debug.LogError($"{nameof(BoardView)}: {nameof(laneRoot)} is not assigned.", this);
+
+            if (itemPrefab == null)
+                Debug.LogError($"{nameof(BoardView)}: {nameof(itemPrefab)} is not assigned.", this);
+        }
+
         public void Build(int visibleCount)
         {
             // Clear
@@ -41,17 +50,17 @@ namespace ColorSorter.View
             {
                 // 위쪽부터 채우기 위해 역순 매핑
                 int poolIndex = pool.Count - 1 - i;
-                var note = pool[poolIndex];
+                var item = pool[poolIndex];
 
                 if (i < count)
                 {
-                    note.SetColor(visibleQueue[i]);
-                    note.SetActive(true);
-                    note.SetHighlighted(highlightFront && i == 0);
+                    item.SetColor(visibleQueue[i]);
+                    item.SetActive(true);
+                    item.SetHighlighted(highlightFront && i == 0);
                 }
                 else
                 {
-                    note.SetActive(false);
+                    item.SetActive(false);
                 }
             }
         }
